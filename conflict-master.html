@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Load the JS file -->
+    <script src="https://cdn.jsdelivr.net/npm/@gitgraph/js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <!-- DOM element in which we'll mount our graph -->
+
+    <div class="container mx-auto">
+      <div class="mx-auto w-6/12">
+        <!-- Menu -->
+        <div class="py-8 flex flex-col items-center border-b-4 border-gray-300">
+          <h1 class="text-2xl font-bold mb-5">Menu</h1>
+
+          <ol class="list-disc">
+            <li><a href="/index.html">Default</a></li>
+            <li>
+              <a href="/conflict-master.html" class="font-bold underline"
+                >Conflict to master before release</a
+              >
+            </li>
+            <li>
+              <a href="/conflict-always.html"
+                >Always conflict when merging with staging</a
+              >
+            </li>
+            <li><a href="/feature.html">Develop big feature</a></li>
+          </ol>
+        </div>
+
+        <!-- Description -->
+        <div class="py-12">
+          <p class="mb-10 pl-8 border-l-8 boder-gray-300">
+            This happens when your feature branch was too long in
+            <span class="font-bold underline decoration-yellow-500"
+              >staging</span
+            >
+            and not released yet
+          </p>
+
+          <ol class="list-decimal">
+            <li>
+              When you PR (pull request) your branch to
+              <span class="font-bold underline decoration-rose-700">master</span
+              >, and there is some conflict file with
+              <span class="font-bold underline decoration-rose-700">master</span
+              >.
+            </li>
+            <li>
+              You can sync your branch to master, before you continue. Run
+              <span class="font-bold underline decoration-teal-500"
+                >git pull origin master</span
+              >
+            </li>
+            <li>
+              Your local branch will conflict after you sync, you must solve it
+              in local, test it and make sure your feature running properly.
+            </li>
+            <li>
+              Last push again to you branch, then your PR will not conflict
+              anymore.
+            </li>
+            <li>
+              How about if you branch conflict with
+              <span class="font-bold underline decoration-yellow-500"
+                >staging</span
+              >? Thats fine, your reviewer will solve it and merge into staging.
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <div id="graph-container"></div>
+    </div>
+
+    <!-- Use the `GitgraphJS` global variable to create your graph -->
+    <script>
+      // Get the graph container HTML element.
+      const graphContainer = document.getElementById("graph-container");
+
+      // Instantiate the graph.
+      const gitgraph = GitgraphJS.createGitgraph(graphContainer, {
+        author: "Iqbal Hamdani <iqbal.hamdani@misteraladin.com>",
+      });
+
+      // Simulate git commands with Gitgraph API.
+      const master = gitgraph.branch("master");
+      master.commit("Initial with base templete");
+
+      const staging = master.branch("staging");
+      staging
+        .commit("Develop Homepage, PLP, PDP")
+        .commit("Develop Checkout and Payment");
+
+      master.merge(staging).tag("v1.0.0");
+
+      // Case 1
+      const tsc123 = master.branch("TCS-123-typo-wording-footer");
+      tsc123
+        .commit({
+          subject: "[Footer] update office hours",
+          author: "Abdullah Zaky <abdullah.zaky@misteraladin.com>",
+        })
+        .commit({
+          subject: "[Footer] update minor styling",
+          author: "Abdullah Zaky <abdullah.zaky@misteraladin.com>",
+        });
+      staging.merge(tsc123);
+      master.merge(tsc123).tag("v1.1.0");
+
+      const tcs157 = master.branch("TCS-157-add-b2b-url-header");
+      tcs157.commit({
+        subject: "[Footer] update minor styling",
+        author: "Gaga Lesmana <gaga@misteraladin.com>",
+      });
+      staging.merge(tcs157);
+      tcs157.merge({
+        branch: "master",
+        commitOptions: {
+          subject: "Sync with master",
+          author: "Gaga Lesmana <gaga@misteraladin.com>",
+        },
+      });
+
+      master.merge(tcs157).tag("v1.2.0");
+    </script>
+  </body>
+</html>

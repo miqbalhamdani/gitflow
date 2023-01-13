@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Load the JS file -->
+    <script src="https://cdn.jsdelivr.net/npm/@gitgraph/js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <!-- DOM element in which we'll mount our graph -->
+
+    <div class="container mx-auto">
+      <div class="mx-auto w-6/12">
+        <!-- Menu -->
+        <div class="py-8 flex flex-col items-center border-b-4 border-gray-300">
+          <h1 class="text-2xl font-bold mb-5">Menu</h1>
+
+          <ol class="list-disc">
+            <li><a href="/index.html">Default</a></li>
+            <li>
+              <a href="/conflict-master.html"
+                >Conflict to master before release</a
+              >
+            </li>
+            <li>
+              <a href="/conflict-always.html" class="font-bold underline"
+                >Always conflict when merging with staging</a
+              >
+            </li>
+            <li><a href="/feature.html">Develop big feature</a></li>
+          </ol>
+        </div>
+
+        <!-- Description -->
+        <div class="py-12">
+          <p class="mb-10 pl-8 border-l-8 boder-gray-300">
+            This happens when there are many features that never release,
+            <span class="font-bold underline decoration-rose-700">master</span>
+            never sync to
+            <span class="font-bold underline decoration-yellow-500"
+              >staging</span
+            >, and many more.
+          </p>
+
+          <ol class="list-decimal">
+            <li>
+              Conflict is always happened, and conflict cant be solve, because
+              too many changes. So you need to create 2 branch, one is for
+              <span class="font-bold underline decoration-rose-700">master</span
+              >, and the other one is for
+              <span class="font-bold underline decoration-yellow-500"
+                >staging</span
+              >
+            </li>
+            <li>
+              Create new branch from
+              <span class="font-bold underline decoration-rose-700">master</span
+              >, with naming
+              <span class="font-bold underline decoration-teal-500"
+                >TB2BT-123-typo-wording-footer</span
+              >.
+            </li>
+            <li>
+              Next, you create new branch again from
+              <span class="font-bold underline decoration-yellow-500"
+                >staging</span
+              >. with naming
+              <span class="font-bold underline decoration-teal-500"
+                >staging/TB2BT-123-typo-wording-footer</span
+              >
+            </li>
+            <li>
+              After your feature or ticket done, push to your branch
+              <span class="font-bold underline decoration-teal-500"
+                >TB2BT-123-typo-wording-footer</span
+              >.
+            </li>
+            <li>
+              Next, you
+              <span class="font-bold underline decoration-teal-500"
+                >Cherry Pick</span
+              >
+              from your main branch
+              <span class="font-bold underline decoration-teal-500"
+                >TB2BT-123-typo-wording-footer</span
+              >
+              to you staging branch
+              <span class="font-bold underline decoration-teal-500"
+                >staging/TB2BT-123-typo-wording-footer</span
+              >. <br />
+              git cherry-pick "commit_hash"
+            </li>
+            <li>
+              Then merge your staging branch
+              <span class="font-bold underline decoration-teal-500"
+                >staging/TB2BT-123-typo-wording-footer</span
+              >
+              to
+              <span class="font-bold underline decoration-yellow-500"
+                >staging</span
+              >.
+            </li>
+            <li>
+              QA will test. If everything is OK, then PR, and merge your main
+              branch
+              <span class="font-bold underline decoration-teal-500"
+                >TB2BT-123-typo-wording-footer</span
+              >
+              into
+              <span class="font-bold underline decoration-rose-700">master</span
+              >. If not OK, you can repeat step 4.
+            </li>
+            <li>
+              After your main branch
+              <span class="font-bold underline decoration-teal-500"
+                >TB2BT-123-typo-wording-footer</span
+              >
+              merge into
+              <span class="font-bold underline decoration-rose-700">master</span
+              >, you can delete this branch
+              <span class="font-bold underline decoration-teal-500"
+                >staging/TB2BT-123-typo-wording-footer</span
+              >.
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <div id="graph-container"></div>
+    </div>
+
+    <!-- Use the `GitgraphJS` global variable to create your graph -->
+    <script>
+      function createFixedHashGenerator() {
+        let hashIndex = 0;
+        return () => `h45h${hashIndex++}`;
+      }
+
+      // Get the graph container HTML element.
+      const graphContainer = document.getElementById("graph-container");
+
+      // Instantiate the graph.
+      const gitgraph = GitgraphJS.createGitgraph(graphContainer, {
+        author: "Iqbal Hamdani <iqbal.hamdani@misteraladin.com>",
+        generateCommitHash: createFixedHashGenerator(),
+      });
+
+      // Simulate git commands with Gitgraph API.
+      const master = gitgraph.branch("master");
+      master.commit("Initial with base templete");
+
+      const staging = master.branch("staging");
+      staging
+        .commit("Develop Homepage, PLP, PDP")
+        .commit("Develop Checkout and Payment");
+
+      master.merge(staging).tag("v1.0.0");
+
+      // Start
+      const tb2bt123 = master.branch("TB2BT-123-typo-wording-footer");
+      tb2bt123
+        .commit({
+          subject: "[Footer] update office hours",
+          author: "Evan Fernando <evan.fernando@misteraladin.com>",
+        })
+        .commit({
+          subject: "[Footer] update minor styling",
+          author: "Evan Fernando <evan.fernando@misteraladin.com>",
+        });
+      const staging_tb2bt123 = staging.branch(
+        "staging/TB2BT-123-typo-wording-footer"
+      );
+      staging_tb2bt123.commit({
+        subject: "Cherry Pick h45h4, h45h5",
+        author: "Evan Fernando <evan.fernando@misteraladin.com>",
+      });
+      staging.merge(staging_tb2bt123);
+      master.merge(tb2bt123);
+
+      const tb2bt157 = master.branch("TB2BT-157-add-b2b-url-header");
+      tb2bt157.commit({
+        subject: "[Header] Adding B2B Train Url",
+        author: "Wicaksana Pratama <wicaksana.pratama@misteraladin.com>",
+      });
+      const staging_tb2bt157 = staging.branch(
+        "staging/TB2BT-157-add-b2b-url-header"
+      );
+      staging_tb2bt157.commit({
+        subject: "Cherry Pick h45h9",
+        author: "Wicaksana Pratama <wicaksana.pratama@misteraladin.com>",
+      });
+      staging.merge(staging_tb2bt157);
+      master.merge(tb2bt157);
+    </script>
+  </body>
+</html>

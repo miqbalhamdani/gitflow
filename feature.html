@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Load the JS file -->
+    <script src="https://cdn.jsdelivr.net/npm/@gitgraph/js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <!-- DOM element in which we'll mount our graph -->
+
+    <div class="container mx-auto">
+      <div class="mx-auto w-6/12">
+        <!-- Menu -->
+        <div class="py-8 flex flex-col items-center border-b-4 border-gray-300">
+          <h1 class="text-2xl font-bold mb-5">Menu</h1>
+
+          <ol class="list-disc">
+            <li><a href="/index.html">Default</a></li>
+            <li>
+              <a href="/conflict-master.html"
+                >Conflict to master before release</a
+              >
+            </li>
+            <li>
+              <a href="/conflict-always.html"
+                >Always conflict when merging with staging</a
+              >
+            </li>
+            <li>
+              <a href="/feature.html" class="font-bold underline"
+                >Develop big feature</a
+              >
+            </li>
+          </ol>
+        </div>
+
+        <!-- Description -->
+        <div class="py-12">
+          <p class="mb-10 pl-8 border-l-8 boder-gray-300">
+            This happens when you're developing a big feature with many
+            developers in charge
+          </p>
+
+          <ol class="list-decimal">
+            <li>
+              Let says we develop
+              <span class="font-bold underline decoration-gray-500"
+                >AladinX</span
+              >
+              with 3 developers.
+              <span class="font-bold underline decoration-green-500">Wicak</span
+              >,
+              <span class="font-bold underline decoration-blue-500">Gaga</span>,
+              <span class="font-bold underline decoration-purple-500"
+                >Faris</span
+              >.
+            </li>
+            <li>
+              First you need to create 2 branch. First branch is main branch of
+              feature branch Ex.
+              <span class="font-bold underline decoration-gray-500"
+                >feature/AladinX</span
+              >. The other one is sub branch, based on Jira ticket Ex.
+              <span class="font-bold underline decoration-gray-500"
+                >TB2BT-98-init-base</span
+              >.
+            </li>
+            <li>
+              As a usual, create branch from
+              <span class="font-bold underline decoration-rose-700"
+                >master</span
+              >
+              (source
+              <span class="font-bold underline decoration-rose-700">master</span
+              >). Create branch
+              <span class="font-bold underline decoration-gray-500"
+                >feature/AladinX</span
+              >
+              from
+              <span class="font-bold underline decoration-rose-700">master</span
+              >.
+            </li>
+            <li>
+              Create new branch again based on you Jira Ticket
+              <span class="font-bold underline decoration-gray-500"
+                >TB2BT-98-init-base</span
+              >
+              from branch main feature
+              <span class="font-bold underline decoration-gray-500"
+                >feature/AladinX</span
+              >
+            </li>
+            <li>
+              After your ticket done, push your branch
+              <span class="font-bold underline decoration-gray-500"
+                >TB2BT-98-init-base</span
+              >. Then PR (pull request) to main branch of feature Ex.
+              <span class="font-bold underline decoration-gray-500"
+                >feature/AladinX</span
+              >.
+            </li>
+            <li>
+              And you can merge
+              <span class="font-bold underline decoration-gray-500"
+                >TB2BT-98-init-base</span
+              >
+              to
+              <span class="font-bold underline decoration-gray-500"
+                >feature/AladinX</span
+              >
+            </li>
+            <li>Then PR again, <span class="font-bold underline decoration-gray-500"
+              >fe to <span class="font-bold underline decoration-yellow-500"
+              >staging</span
+            ></li>
+            <li>And if there is new ticket again, relate to this feature, create new branch from <span class="font-bold underline decoration-gray-500"
+              >feature/AladinX</span
+            >, and repeat step 5 again.</li>
+            <li>If the feature will be released, just PR you feature branch <span class="font-bold underline decoration-gray-500"
+              >feature/AladinX</span
+            >.</li>
+            <li>And your job are finished</li>
+          </ol>
+        </div>
+      </div>
+
+      <div id="graph-container"></div>
+    </div>
+
+    <!-- Use the `GitgraphJS` global variable to create your graph -->
+    <script>
+      // Get the graph container HTML element.
+      const graphContainer = document.getElementById("graph-container");
+
+      // Instantiate the graph.
+      const gitgraph = GitgraphJS.createGitgraph(graphContainer, {
+        author: "Iqbal Hamdani <iqbal.hamdani@misteraladin.com>",
+      });
+
+      // Simulate git commands with Gitgraph API.
+      const master = gitgraph.branch("master");
+      master.commit("Initial with base templete");
+
+      const staging = master.branch("staging");
+      staging
+        .commit("Develop Homepage, PLP, PDP")
+        .commit("Develop Checkout and Payment");
+
+      master.merge(staging).tag("v1.0.0");
+
+      // Start
+      const featAladinx = master.branch("feature/AladinX");
+      const tb2bt98 = master.branch("TB2BT-98-init-base");
+      tb2bt98.commit({
+        subject: "[AladinX] Init base tempate with typescript",
+        author: "Wicaksana Pratama <wicaksana.pratama@misteraladin.com>",
+      });
+      featAladinx.merge(tb2bt98);
+      staging.merge(featAladinx);
+
+      const tb2bt123 = featAladinx.branch("TB2BT-123-homepage");
+      tb2bt123
+        .commit({
+          subject: "[AladinX] banner, search all product",
+          author: "Abdullah Zaky <abdullah.zaky@misteraladin.com>",
+        })
+        .commit({
+          subject: "[AladinX] hotel recommended, explore favorite, blog",
+          author: "Abdullah Zaky <abdullah.zaky@misteraladin.com>",
+        });
+      featAladinx.merge(tb2bt123);
+      staging.merge(featAladinx);
+
+      const tb2bt157 = featAladinx.branch("TB2BT-157-plp");
+      tb2bt157.commit({
+        subject: "[AladinX] Search product, filter, sorting, pagination",
+        author: "Faris Imaduddin <faris.imaduddin@misteraladin.com>",
+      });
+      featAladinx.merge(tb2bt157);
+      staging.merge(featAladinx);
+
+      master.merge(featAladinx).tag("v2.0.0");
+    </script>
+  </body>
+</html>
