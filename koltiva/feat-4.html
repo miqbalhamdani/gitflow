@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Load the JS file -->
+    <script src="https://cdn.jsdelivr.net/npm/@gitgraph/js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <!-- DOM element in which we'll mount our graph -->
+
+    <div class="container mx-auto">
+      <div class="mx-auto w-6/12">
+        <!-- Menu -->
+        <div class="py-8 flex flex-col items-center border-b-4 border-gray-300">
+          <h1 class="text-2xl font-bold mb-5">Menu</h1>
+
+          <ol class="list-disc">
+            <li>
+                <a href="/koltiva/existing.html">Existing</a>
+              </li>
+              <li>
+                <a href="/koltiva/feat-1.html">Feature Branch</a>
+              </li>
+              <li>
+                <a href="/koltiva/feat-2.html">Feature Branch for many developers</a>
+              </li>
+              <li>
+                <a href="/koltiva/feat-3.html">Feature Branch Component Based</a>
+              </li>
+              <li>
+                <a href="/koltiva/feat-4.html" class="font-bold underline">Feature Branch Mobiles</a>
+              </li>
+          </ol>
+        </div>
+
+        <!-- Description -->
+        <div class="py-12"></div>
+      </div>
+
+      <div id="graph-container"></div>
+    </div>
+
+    <!-- Use the `GitgraphJS` global variable to create your graph -->
+    <script>
+      // Get the graph container HTML element.
+      const graphContainer = document.getElementById("graph-container");
+
+      // Instantiate the graph.
+      const gitgraph = GitgraphJS.createGitgraph(graphContainer, {
+        author: "Iqbal Hamdani <iqbal.hamdani@koltiva.com>",
+      });
+
+      // Simulate git commands with Gitgraph API.
+      const main = gitgraph.branch("main");
+      main.commit("Initial");
+
+      const priceInfo = main.branch("priceInfo");
+      priceInfo.commit({
+        subject: "Create Price Info List",
+        author: "Jimmy <Jimmy@koltiva.com>",
+      });
+      priceInfo.commit({
+        subject: "Create Price Info Detail",
+        author: "Jimmy <Jimmy@koltiva.com>",
+      });
+
+      const news = main.branch("news");
+      news.commit({
+        subject: "Create Price Info List",
+        author: "Rizky <Rizky@koltiva.com>",
+      });
+
+      const videos = main.branch("videos");
+      videos.commit({
+        subject: "Create Price Info List",
+        author: "Rizky <Rizky@koltiva.com>",
+      });
+      /* -------------------------------------------------------------- */
+
+      const release110 = main.branch("Release-1-1-0");
+      release110.merge(priceInfo);
+      release110.merge(news);
+      main.merge(release110);
+
+      const release120 = main.branch("Release-1-2-0");
+      release120.merge(videos);
+      main.merge(release120);
+    </script>
+  </body>
+</html>
